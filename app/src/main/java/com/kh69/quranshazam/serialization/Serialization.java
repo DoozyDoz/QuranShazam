@@ -32,11 +32,11 @@ public class Serialization {
     // directory in a file called "hashmap.ser"
     public static void serializeHashMap(Map<Long, List<KeyPoint>> hashMap, StorageReference storageRef, Context ctx) {
         String filePath = ctx.getFilesDir().getPath().toString() + "/hashmap2.ser";
-        File f;
+        File   f;
 
         try {
             f = new File(filePath);
-            OutputStream fos = new FileOutputStream(f);
+            OutputStream       fos = new FileOutputStream(f);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(hashMap);
             oos.close();
@@ -66,7 +66,7 @@ public class Serialization {
         }
     }
 
-    public static void downloadFile(StorageReference storageRef, Context ctx) {
+    public static void downloadFile(String storageRef, Context ctx) {
         File fileNameOnDevice = new File(ctx.getExternalFilesDir(null) + "/" + "hashmap2.ser");
 
         storageRef.child("hashmap2.ser").getFile(fileNameOnDevice).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
@@ -84,8 +84,8 @@ public class Serialization {
         System.out.println("Archivo: " + fileNameOnDevice.getAbsolutePath());
     }
 
-    public static Map<Long, List<KeyPoint>> fillHashMap(StorageReference storageRef, Context ctx) {
-        Map<Long, List<KeyPoint>> hashMap = new HashMap<Long, List<KeyPoint>>();
+    public static Map<Long, List<KeyPoint>> fillHashMap(String storageRef, Context ctx) {
+        Map<Long, List<KeyPoint>> hashMap = new HashMap<>();
 
         downloadFile(storageRef, ctx);
 
@@ -97,7 +97,7 @@ public class Serialization {
 
         String location = ctx.getExternalFilesDir(null) + "/" + "hashmap2.ser";
 
-        FileInputStream fis = null;
+        FileInputStream   fis = null;
         ObjectInputStream ois = null;
 
         try {
@@ -111,11 +111,7 @@ public class Serialization {
             } catch (EOFException eof) {
                 System.out.println("End of file exception.");
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
             if (ois != null) {

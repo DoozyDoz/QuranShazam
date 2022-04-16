@@ -1,9 +1,5 @@
 package com.kh69.quranshazam.utilities;
 
-/**
- * Created by Ruth on 30/11/2017.
- */
-
 public class HashingFunctions {
 
     // Example of hash1 function

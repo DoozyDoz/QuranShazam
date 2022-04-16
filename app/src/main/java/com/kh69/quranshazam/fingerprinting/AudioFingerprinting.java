@@ -2,20 +2,24 @@ package com.kh69.quranshazam.fingerprinting;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import android.content.Context;
 import android.media.MediaCasException;
+import android.os.Build;
 import android.widget.Toast;
 
-import com.google.firebase.storage.StorageReference;
 
 import static android.os.SystemClock.sleep;
+
+import androidx.annotation.RequiresApi;
 
 public class AudioFingerprinting {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args, StorageReference storageRef, Context ctx) {
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static void main(String[] args, String storageRef, Context ctx) {
 
         boolean exit = false;
 

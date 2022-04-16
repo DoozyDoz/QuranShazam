@@ -1,9 +1,5 @@
 package com.kh69.quranshazam.utilities;
 
-/**
- * Created by Ruth on 30/11/2017.
- */
-
 public class Complex {
 
     private final double re; // The real part
@@ -40,25 +36,25 @@ public class Complex {
 
     // Return a new Complex object whose value is (this + b)
     public Complex plus(Complex b) {
-        Complex a = this; // invoking object
-        double real = a.re + b.re;
-        double imag = a.im + b.im;
+        Complex a    = this; // invoking object
+        double  real = a.re + b.re;
+        double  imag = a.im + b.im;
         return new Complex(real, imag);
     }
 
     // Return a new Complex object whose value is (this - b)
     public Complex minus(Complex b) {
-        Complex a = this;
-        double real = a.re - b.re;
-        double imag = a.im - b.im;
+        Complex a    = this;
+        double  real = a.re - b.re;
+        double  imag = a.im - b.im;
         return new Complex(real, imag);
     }
 
     // Return a new Complex object whose value is (this * b)
     public Complex times(Complex b) {
-        Complex a = this;
-        double real = a.re * b.re - a.im * b.im;
-        double imag = a.re * b.im + a.im * b.re;
+        Complex a    = this;
+        double  real = a.re * b.re - a.im * b.im;
+        double  imag = a.re * b.im + a.im * b.re;
         return new Complex(real, imag);
     }
 
@@ -119,9 +115,9 @@ public class Complex {
 
     // A static version of plus
     public static Complex plus(Complex a, Complex b) {
-        double real = a.re + b.re;
-        double imag = a.im + b.im;
-        Complex sum = new Complex(real, imag);
+        double  real = a.re + b.re;
+        double  imag = a.im + b.im;
+        Complex sum  = new Complex(real, imag);
         return sum;
     }
 }

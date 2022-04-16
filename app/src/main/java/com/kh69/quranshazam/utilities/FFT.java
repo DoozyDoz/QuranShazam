@@ -1,19 +1,16 @@
 package com.kh69.quranshazam.utilities;
 
-/**
- * Created by Ruth on 30/11/2017.
- */
 
 public class FFT {
 
     // Compute the FFT of x[], assuming its length is a power of 2
-    public static Complex [] fft(Complex[] x) {
+    public static Complex[] fft(Complex[] x) {
 
         int N = x.length;
 
         // Base case
         if (N == 1) {
-            return new Complex []{x[0]};
+            return new Complex[]{x[0]};
         }
 
         // Radix 2 Cooley-Tukey FFT
@@ -22,7 +19,7 @@ public class FFT {
         }
 
         // FFT of even terms
-        Complex [] even = new Complex[N / 2];
+        Complex[] even = new Complex[N / 2];
         for (int k = 0; k < N / 2; k++) {
             even[k] = x[2 * k];
         }
@@ -38,9 +35,9 @@ public class FFT {
         // Combine
         Complex[] y = new Complex[N];
         for (int k = 0; k < N / 2; k++) {
-            double kth = -2 * k * Math.PI / N;
-            Complex wk = new Complex(Math.cos(kth), Math.sin(kth));
-            y[k] = q[k].plus(wk.times(r[k]));
+            double  kth = -2 * k * Math.PI / N;
+            Complex wk  = new Complex(Math.cos(kth), Math.sin(kth));
+            y[k]         = q[k].plus(wk.times(r[k]));
             y[k + N / 2] = q[k].minus(wk.times(r[k]));
         }
         return y;
@@ -49,7 +46,7 @@ public class FFT {
     // Compute the inverse FFT of x[], assuming its length is a power of 2
     public static Complex[] ifft(Complex[] x) {
 
-        int N = x.length;
+        int       N = x.length;
         Complex[] y = new Complex[N];
 
         // Take conjugate
@@ -80,7 +77,7 @@ public class FFT {
         /*
          * Should probably pad x and y with 0s so that they have same length
          * and are powers of 2
-        */
+         */
         if (x.length != y.length) {
             throw new RuntimeException("Dimensions don't agree");
         }

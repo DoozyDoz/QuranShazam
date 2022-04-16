@@ -1,6 +1,5 @@
 package com.kh69.quranshazam.fingerprinting;
 
-import es.uclm.esi.multimedia.serialization.Serialization;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,9 +17,10 @@ import android.media.MediaRecorder;
 import android.media.MediaCasException;
 
 import com.google.firebase.storage.StorageReference;
+import com.kh69.quranshazam.serialization.Serialization;
+import com.kh69.quranshazam.utilities.HashingFunctions;
+import com.kh69.quranshazam.utilities.Spectrum;
 
-import es.uclm.esi.multimedia.utilities.HashingFunctions;
-import es.uclm.esi.multimedia.utilities.Spectrum;
 
 public class AudioRecognizer {
 
@@ -36,7 +36,7 @@ public class AudioRecognizer {
     private String bestSongMatch;
 
     // Constructor
-    public AudioRecognizer(StorageReference storageRef, Context ctx) {
+    public AudioRecognizer(String storageRef, Context ctx) {
 
         // Deserialize the hash table hashMapSongRepository (our song repository)
         this.hashMapSongRepository = Serialization.fillHashMap(storageRef, ctx);
@@ -45,7 +45,7 @@ public class AudioRecognizer {
     }
 
     // Method used to acquire audio from the microphone and to add/match a song fragment
-    public void listening(String songid, boolean ismatching, StorageReference storageRef, Context context) throws MediaCasException {
+    public void listening(String songid, boolean ismatching, String storageRef, Context context) throws MediaCasException {
         final Context contexto = context;
         final StorageReference storage = storageRef;
         final String songId = songid;

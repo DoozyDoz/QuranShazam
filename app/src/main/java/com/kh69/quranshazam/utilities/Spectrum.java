@@ -1,10 +1,6 @@
 package com.kh69.quranshazam.utilities;
 
-import es.uclm.esi.multimedia.fingerprinting.AudioParams;
-
-/**
- * Created by Ruth on 30/11/2017.
- */
+import com.kh69.quranshazam.fingerprinting.AudioParams;
 
 public class Spectrum {
 
@@ -30,8 +26,8 @@ public class Spectrum {
             // a complex number (complex) with 0 as imaginary part
             Complex[] complex = new Complex[AudioParams.chunkSize];
 
-            for(int j = 0; j<AudioParams.chunkSize; j++) {
-                complex[j] = new Complex(audioTimeDomain[i*AudioParams.chunkSize + j], 0);
+            for (int j = 0; j < AudioParams.chunkSize; j++) {
+                complex[j] = new Complex(audioTimeDomain[i * AudioParams.chunkSize + j], 0);
             }
 
             // Perform the FFT for the current chunk (FFT.fft(complex))
@@ -40,7 +36,7 @@ public class Spectrum {
             resultsComplex[i] = FFT.fft(complex);
 
             // Initialize to avoid NullPointerExceptions
-            resultsMag[i]= new double[AudioParams.chunkSize];
+            resultsMag[i] = new double[AudioParams.chunkSize];
 
             // Save into resultsMag[i] the log magnitude for each frequency
             // within each chunk
