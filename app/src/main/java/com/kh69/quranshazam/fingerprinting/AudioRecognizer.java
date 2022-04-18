@@ -10,13 +10,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.media.MediaCasException;
 
-import com.google.firebase.storage.StorageReference;
+import androidx.core.app.ActivityCompat;
+
 import com.kh69.quranshazam.serialization.Serialization;
 import com.kh69.quranshazam.utilities.HashingFunctions;
 import com.kh69.quranshazam.utilities.Spectrum;
@@ -40,56 +43,62 @@ public class AudioRecognizer {
 
         // Deserialize the hash table hashMapSongRepository (our song repository)
         this.hashMapSongRepository = Serialization.fillHashMap(storageRef, ctx);
-        this.running = true;
-        this.ctx = ctx;
+        this.running               = true;
+        this.ctx                   = ctx;
     }
 
     // Method used to acquire audio from the microphone and to add/match a song fragment
     public void listening(String songid, boolean ismatching, String storageRef, Context context) throws MediaCasException {
-        final Context contexto = context;
-        final StorageReference storage = storageRef;
-        final String songId = songid;
+        final Context contexto   = context;
+        final String  storage    = storageRef;
+        final String  songId     = songid;
         final boolean isMatching = ismatching;
 
+        if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         final AudioRecord audiorecorder = new AudioRecord(MediaRecorder.AudioSource.MIC, AudioParams.sampleRate, AudioParams.channels, AudioFormat.ENCODING_PCM_8BIT, AudioParams.bufferSize);
         audiorecorder.startRecording();
 
-        Thread listeningThread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                // Output stream
-                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-                // Reader buffer
-                byte[] buffer = new byte[AudioParams.bufferSize];
-                int n = 0;
-                try {
-                    while (running) {
-                        // Reading
-                        int count = audiorecorder.read(buffer, 0, buffer.length);
-                        // If buffer is not empty
-                        if (count > 0) {
-                            outStream.write(buffer, 0, count);
-                        }
+        Thread listeningThread = new Thread(() -> {
+            // Output stream
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            // Reader buffer
+            byte[] buffer = new byte[AudioParams.bufferSize];
+            int    n      = 0;
+            try {
+                while (running) {
+                    // Reading
+                    int count = audiorecorder.read(buffer, 0, buffer.length);
+                    // If buffer is not empty
+                    if (count > 0) {
+                        outStream.write(buffer, 0, count);
                     }
-
-                    byte[] audioTimeDomain = outStream.toByteArray();
-
-                    // Compute magnitude spectrum
-                    double[][] magnitudeSpectrum = Spectrum.compute(audioTimeDomain);
-
-                    // Determine the shazam action (add or matching) and perform it
-                   shazamAction(magnitudeSpectrum, songId, isMatching);
-
-                    // Close stream
-                    outStream.close();
-
-                    // Serialize again the hashMapSongRepository (our song repository)
-                    Serialization.serializeHashMap(hashMapSongRepository, storage, contexto);
-                } catch (IOException e) {
-                    System.err.println("I/O exception " + e);
-                    System.exit(-1);
                 }
+
+                byte[] audioTimeDomain = outStream.toByteArray();
+
+                // Compute magnitude spectrum
+                double[][] magnitudeSpectrum = Spectrum.compute(audioTimeDomain);
+
+                // Determine the shazam action (add or matching) and perform it
+                shazamAction(magnitudeSpectrum, songId, isMatching);
+
+                // Close stream
+                outStream.close();
+
+                // Serialize again the hashMapSongRepository (our song repository)
+                Serialization.serializeHashMap(hashMapSongRepository, storage, contexto);
+            } catch (IOException e) {
+                System.err.println("I/O exception " + e);
+                System.exit(-1);
             }
         });
 
@@ -146,8 +155,8 @@ public class AudioRecognizer {
                 List<KeyPoint> listn = this.hashMapSongRepository.get(hashentry);
                 if (listn != null) {
                     for (KeyPoint kp : listn) {
-                        int time = kp.getTimestamp();
-                        String id = kp.getSongId();
+                        int    time = kp.getTimestamp();
+                        String id   = kp.getSongId();
                         // Compute the offset
                         int offset = Math.abs(time - c);
 
@@ -195,8 +204,8 @@ public class AudioRecognizer {
     private long computeHashEntry(double[] chunk) {
 
         // Variables to determine the hash entry for this chunk/window spectra
-        double highscores[] = new double[AudioParams.range.length];
-        int frequencyPoints[] = new int[AudioParams.range.length];
+        double highscores[]      = new double[AudioParams.range.length];
+        int    frequencyPoints[] = new int[AudioParams.range.length];
 
         for (int freq = AudioParams.lowerLimit; freq < AudioParams.unpperLimit - 1; freq++) {
             // Get the magnitude
@@ -205,7 +214,7 @@ public class AudioRecognizer {
             int index = getIndex(freq);
             // Save the highest magnitude and corresponding frequency:
             if (mag > highscores[index]) {
-                highscores[index] = mag;
+                highscores[index]      = mag;
                 frequencyPoints[index] = freq;
             }
         }
@@ -222,9 +231,9 @@ public class AudioRecognizer {
 
         // Iterate over the hash map to compare the counter of all the offset
         for (Map.Entry<String, Map<Integer, Integer>> entry : matchMap.entrySet()) { // Every song
-            String idsong = entry.getKey();
-            Map<Integer, Integer> offsetmap = entry.getValue();
-            int biggestoffset_of_a_song = 0;
+            String                idsong                  = entry.getKey();
+            Map<Integer, Integer> offsetmap               = entry.getValue();
+            int                   biggestoffset_of_a_song = 0;
 
             for (Map.Entry<Integer, Integer> entry2 : offsetmap.entrySet()) { // Every offset of the song
                 int current_cont = entry2.getValue();
@@ -245,11 +254,11 @@ public class AudioRecognizer {
         System.out.println("Best song: " + getBest());
     }
 
-    public String getBest(){
+    public String getBest() {
         return this.bestSongMatch;
     }
 
-    public void setBest(String best){
+    public void setBest(String best) {
         this.bestSongMatch = best;
     }
 }

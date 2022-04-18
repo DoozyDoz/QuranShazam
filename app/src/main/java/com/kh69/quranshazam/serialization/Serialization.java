@@ -1,7 +1,9 @@
 package com.kh69.quranshazam.serialization;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Environment;
 
 import androidx.annotation.NonNull;
 
@@ -30,8 +32,8 @@ public class Serialization {
 
     // The serialized <songId,keypoints> hash table is inside the "serialized"
     // directory in a file called "hashmap.ser"
-    public static void serializeHashMap(Map<Long, List<KeyPoint>> hashMap, StorageReference storageRef, Context ctx) {
-        String filePath = ctx.getFilesDir().getPath().toString() + "/hashmap2.ser";
+    public static void serializeHashMap(Map<Long, List<KeyPoint>> hashMap, String storageRef, Context ctx) {
+        String filePath = ctx.getFilesDir().getPath() + "/hashmap2.ser";
         File   f;
 
         try {
@@ -48,7 +50,27 @@ public class Serialization {
                 e.printStackTrace();
             }
 
-            Uri fileHash = Uri.fromFile(f);
+            Uri    fileHash = Uri.fromFile(f);
+            String root     = Environment.getExternalStorageDirectory().toString();
+            File   myDir    = new File(root + "/audio_repo");
+            if (!myDir.exists()) {
+                myDir.mkdirs();
+            }
+            
+            String fname = "hashmap2.ser";
+            File   file  = new File(myDir, fname);
+            if (file.exists())
+                file.delete();
+
+            try {
+                FileOutputStream out = new FileOutputStream(file);
+                out.flush();
+                out.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             storageRef.child("hashmap2.ser").putFile(fileHash).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
